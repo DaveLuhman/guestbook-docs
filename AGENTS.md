@@ -104,6 +104,131 @@ The following conditions require human review:
 - A page exists primarily to link elsewhere without adding clarity.
 
 ---
+## Documentation Images Checklist
+
+This project uses images intentionally. Visuals must reduce cognitive load, clarify workflows, or establish physical context. Decorative or redundant images are discouraged.
+
+### Approved Storage Locations
+
+All publishable images **must** live under `public/docs/`.
+
+Use the following structure:
+
+public/docs/
+- shared/
+  - ui/
+  - icons/
+  - screenshots/
+  - diagrams/
+- users/
+  - kiosks/
+  - flows/
+  - screenshots/
+- admin/
+  - kiosks/
+  - flows/
+  - diagrams/
+  - screenshots/
+- developers/
+  - diagrams/
+  - flows/
+  - screenshots/
+
+Do not store images alongside MDX files.
+Do not introduce ad-hoc `assets/` directories.
+
+### File Types & Formats
+
+- Photos: `.webp` preferred
+- Diagrams / flowcharts / architecture: `.svg` preferred
+- Screenshots: `.webp` or `.png` if necessary
+- Icons: `.svg` where possible
+
+Avoid JPEG unless there is a strong reason.
+
+### Naming Conventions
+
+Use descriptive, kebab-case filenames:
+
+- kiosk-front-hero.webp
+- flow-sign-in-happy-path.svg
+- diagram-deployment-kiosk-vs-workstation.svg
+- screenshot-admin-device-binding.webp
+
+Avoid generic names like image1.png, diagram-final.svg, or new-logo.png.
+
+### Linking Images in MDX
+
+Use **absolute paths from the site root**.
+
+Preferred (Markdown image syntax):
+```md
+![Guestbook kiosk on a front desk](/docs/users/kiosks/kiosk-front-hero.webp)
+```
+When captions or layout control are needed, use HTML:
+```html
+<figure>
+  <img src="/docs/admin/diagrams/diagram-deployment-kiosk-vs-workstation.svg"
+       alt="Deployment models: dedicated kiosk vs shared workstation" />
+  <figcaption>
+    Dedicated kiosks are simpler to support; shared workstations introduce environmental drift.
+  </figcaption>
+</figure>
+```
+Do not use relative paths.
+Do not import images directly into MDX.
+
+### Accessibility Requirements
+
+Every image must include meaningful alternative text.
+
+- Describe what the image communicates, not just what it shows
+- Avoid phrases like “image of” or “screenshot of”
+- Decorative images should be avoided entirely
+
+### When Images Are Required
+
+Use images intentionally in these cases:
+
+Users:
+- Establishing what a kiosk looks like
+- Demonstrating sign-in or confirmation flow
+- Showing where to scan an ID or position a card
+
+Administrators:
+- Deployment models and topology
+- Provisioning or reset workflows
+- Troubleshooting decision trees
+
+Developers & Integrators:
+- Architecture and trust boundaries
+- Sequence diagrams (kiosk ↔ sidecar ↔ backend)
+- Security and identity models
+
+If an image does not make the explanation faster or clearer, omit it.
+
+### Source Files & Editing
+
+- Keep editable diagram sources (Figma, draw.io, etc.) out of `public/`
+- Store sources under `meta-docs/assets/` or a design system repository
+- Export only final, optimized assets into `public/docs/`
+
+### Performance Guidelines
+
+- Target max width: ~1600–2000px for photos
+- Compress images appropriately (quality ~75–85 for WEBP)
+- SVGs should be optimized (no embedded raster blobs)
+
+Documentation should load quickly even on kiosk-class hardware.
+
+### Non-Goals
+
+- No stock photography for decoration
+- No copyrighted logos or branding in documentation imagery
+- No screenshots containing real user data
+- No UI mockups that don’t match actual behavior
+
+Clarity and accuracy take priority over aesthetics.
 
 ## Longevity Clause
 

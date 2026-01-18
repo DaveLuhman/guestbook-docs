@@ -70,3 +70,22 @@ guestbook-docs/
   public/
     images/
       logo.svg
+    docs/
+      shared/
+        ui/
+        icons/
+        screenshots/
+        diagrams/
+      users/
+        kiosks/
+        flows/
+        screenshots/
+      admin/
+        kiosks/
+        flows/
+        diagrams/
+        screenshots/
+      developers/
+        diagrams/
+        flows/
+        screenshots/
