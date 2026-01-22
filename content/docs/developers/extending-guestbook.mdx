@@ -3,27 +3,27 @@ title: "Extending Guestbook"
 audience: "developers"
 summary: "Guidelines for customizing behavior without creating upgrade pain or scattering business logic across the stack."
 url_prefix: "/docs/developers"
-nav_order: 9
+nav_order: 10
 icon: "puzzle-piece"
 ---
 
-This page lays out the technical contract, assumptions, and the failure modes you should plan for.
+This page focuses on extending the **admin portal** in this repository.
 
 ## Extension philosophy
 
 - Prefer configuration over forks
-- Prefer additive hooks/plugins over patching core flows
+- Keep UI changes localized (components and pages)
 - Keep upgrade paths predictable
 
-## Safe extension areas (conceptual)
+## Safe extension areas
 
-- Custom fields and validation rules (when supported)
-- Branding and messaging
-- Export formats and downstream pipelines
-- Webhook/event integrations (when supported)
+- Adding columns or filters to existing tables
+- Extending the Reports export flow (CSV output)
+- Adding admin-only pages for new backend endpoints
+- Updating branding for the portal UI
 
 ## High-risk areas
 
-- Rewriting the kiosk session flow without clear requirements
-- Changing identity/provisioning behavior ad-hoc
-- Embedding org-specific logic directly into the kiosk UI
+- Changing API response expectations without updating the backend
+- Duplicating backend logic in the UI
+- Embedding org-specific rules directly into shared components

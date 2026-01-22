@@ -3,35 +3,35 @@ title: "Barcode and scanner integration"
 audience: "developers"
 summary: "Implementation patterns for scanner input and camera-based scanning, including failure modes and UX coupling."
 url_prefix: "/docs/developers"
-nav_order: 5
+nav_order: 6
 icon: "barcode"
 ---
 
-This page lays out the technical contract, assumptions, and the failure modes you should plan for.
+The admin portal in this repository does **not** implement kiosk scanning or barcode input. Scanner integration is owned by the kiosk application and any local device runtime used by that application.
 
-## Hardware scanner input (keyboard wedge)
+## Where scanner integration lives
 
-Most barcode scanners act like a keyboard:
-- Input arrives as a burst of characters
-- Often includes a terminator (e.g., Enter)
+Scanner integration is implemented in the **kiosk client** repository (`guestbook-client`). The kiosk client supports:
 
-Implementation notes:
-- Debounce repeated scans
-- Handle partial input and timeouts
-- Avoid double-submission when Enter is present
+- **HID barcode scanners**: USB HID-compliant barcode scanners that appear as keyboard input
+- **Magnetic stripe readers**: USB HID MSR devices (e.g., MagTek readers)
+- **Camera-based scanning**: Python sidecar service for Raspberry Pi camera barcode detection
 
-## Camera-based scanning (sidecar model)
+## How it works
 
-Browsers can be constrained by camera permissions, autofocus behavior, and barcode decoding performance.
+1. **HID devices**: The kiosk client detects and manages HID devices automatically. When a barcode is scanned, it appears as keyboard input and is captured by the application.
 
-A sidecar can:
-- own camera access
-- stream a preview (optional)
-- expose a next-scan endpoint or event channel
+2. **Camera scanning**: The kiosk client spawns a Python sidecar service that continuously captures frames from a camera, decodes barcodes, and streams results via HTTP on `http://127.0.0.1:7313`.
 
-## Failure modes to handle
+3. **Entry submission**: Once a barcode is captured (via HID or camera), the kiosk client submits it to the backend API via `POST /api/v1/entries/submit`.
 
-- No camera available / permission denied
-- Scanner disconnected
-- Unrecognized barcode formats
-- Poor lighting or motion blur
+## For implementers
+
+If you are implementing scanner support in the kiosk client:
+
+- Refer to the kiosk client repository documentation
+- See `guestbook-client/src-tauri/src/devices/` for HID device management
+- See `guestbook-client/sidecar/` for camera sidecar implementation
+- Backend device APIs handle device authentication and entry storage
+
+The admin portal only displays the resulting guest and entry data—it does not interact with scanners directly.

@@ -3,21 +3,21 @@ title: "Data and reporting"
 audience: "administrators"
 summary: "Understand what data is collected, how to retrieve it, and how to handle exports responsibly."
 url_prefix: "/docs/admin"
-nav_order: 6
+nav_order: 8
 icon: "chart-line"
 ---
 
-This page focuses on practical operational details and the decisions that affect day-to-day support.
+This page focuses on reporting features available in the admin portal.
 
-## What data is collected (admin view)
+## What data is visible in the portal
 
-Guestbook entries typically include:
-- Identity fields (configured by your org)
-- Timestamp and kiosk/device context
-- Optional location/department tags
-- Optional freeform fields (if enabled)
+The portal renders entry data provided by the backend API. Common fields include:
 
-Your configuration determines the exact shape.
+- Guest identifiers (name, onecard)
+- Device context (device ID, name, location)
+- Timestamps (visit and submission times)
+
+The exact shape depends on your backend API implementation, if different than the default.
 
 ## Common workflows
 
@@ -27,13 +27,17 @@ Your configuration determines the exact shape.
 
 ## Exports
 
-Exports are powerful and risky.
+The Reports page exports **CSV files** using filters for:
 
-- Treat exported files as sensitive
-- Share them intentionally
-- Store them according to your org’s policy (and delete when no longer needed)
+- Guest or device selection
+- Date range (start/end)
+
+Exports happen client-side, so treat downloaded files as sensitive:
+
+- Share intentionally
+- Store according to policy
+- Delete when no longer needed
 
 ## Retention
 
-Retention should match policy and purpose.
-If you don’t have a policy, decide one early—retention is easiest to manage before you have years of data.
+Retention is enforced by the backend, not by the admin portal. If you don’t have a policy, decide one early—retention is easiest to manage before you have years of data.

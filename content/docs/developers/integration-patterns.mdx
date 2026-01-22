@@ -3,13 +3,48 @@ title: "Integration Patterns"
 audience: "developers"
 summary: "Describe the supported integration styles and when to use them."
 url_prefix: "/docs/developers"
-nav_order: 3
+nav_order: 4
 icon: "plug"
 ---
 
 ## What this covers
-Use this page to decide which integration pattern aligns with your system constraints.
+This page summarizes the integration patterns used by the admin portal and available for external integrations.
 
-## Common patterns
-- Event-driven integrations for real-time updates.
-- Scheduled sync for back-office systems.
+## Admin portal integration patterns
+
+The admin portal uses these patterns internally:
+
+- **Direct REST API calls** from the browser to the backend (`NEXT_PUBLIC_API_BASE_URL`)
+- **Server-side Next.js routes** for simple portal utilities (health, contact form, setup scripts)
+
+## External integration patterns
+
+If you're building integrations with the Guestbook platform:
+
+### REST API integration
+
+The backend API (`guestbook-express`) provides a REST API that can be consumed by external systems:
+
+- **Authentication**: Use Stack Auth for user authentication, or device tokens for kiosk authentication
+- **Endpoints**: All endpoints are under `/api/v1/` (see [API Reference](/docs/developers/api-reference))
+- **Response format**: Standard envelope format with `success`, `data`, and `error` fields
+
+### Direct database access
+
+Direct database access is **not recommended** for external integrations:
+- Database schema may change without notice
+- Bypasses business logic and validation
+- Lacks proper access control and auditing
+
+Use the REST API instead.
+
+## Unsupported patterns
+
+The following integration patterns are **not implemented**:
+
+- **Webhooks**: No webhook support for entry events
+- **Event-driven**: No pub/sub or event streaming
+- **Scheduled sync**: No built-in batch synchronization
+- **GraphQL**: REST API only, no GraphQL endpoint
+
+If you need these patterns, you would need to implement them as custom extensions to the backend API.

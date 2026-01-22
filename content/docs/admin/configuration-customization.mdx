@@ -3,40 +3,60 @@ title: "Configuration and customization"
 audience: "administrators"
 summary: "Control what the kiosk asks for, what it shows, and how it aligns with your organization’s policies and workflows."
 url_prefix: "/docs/admin"
-nav_order: 4
+nav_order: 6
 icon: "settings"
 ---
 
-This page focuses on practical operational details and the decisions that affect day-to-day support.
+This page describes configuration for the **admin portal** in this repository. Kiosk form configuration and on-device branding are owned by the kiosk application and backend and are not configured here.
 
-## What “configuration” usually means
+## Admin portal configuration
 
-Most orgs care about three categories:
+The admin portal is configured entirely through environment variables. Create a `.env.local` file (for local development) or set environment variables in your deployment platform.
 
-1. **Branding and guidance**
-   - Welcome text
-   - Logo/identity (if enabled)
-   - Basic instructions and disclosures
+### Required environment variables
 
-2. **Form fields**
-   - Required vs optional fields
-   - Field labels that match local language (“Student ID” vs “Badge”)
-   - Location/department selection patterns (if used)
+**Stack Auth Configuration:**
+- `NEXT_PUBLIC_STACK_PROJECT_ID` - Your Stack Auth project identifier
+- `NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY` - Stack Auth publishable client key (safe for browser)
+- `STACK_SECRET_SERVER_KEY` - Stack Auth secret server key (server-side only, never expose to browser)
+- `NEXT_PUBLIC_STACK_API_URL` - Stack Auth API base URL (default: `https://api.stack-auth.com`)
 
-3. **Policy-driven behavior**
-   - Retention expectations (org policy)
-   - Consent/disclosure messaging (where required)
-   - What happens when validation fails (clear messages)
+**Backend API Configuration:**
+- `NEXT_PUBLIC_API_BASE_URL` - Backend API base URL (default: `http://localhost:3001`)
 
-## Field configuration guidelines
+### Optional environment variables
 
-- Keep the kiosk flow short
-- Only ask for information you actually use
-- Prefer structured choices when you plan to report on them
-- Avoid “notes” fields unless staff routinely need them
+**Email Configuration (for contact form):**
+- `CONTACT_EMAIL_TARGET` - Email address to receive contact form submissions
+- `SMTP_HOST` - SMTP server hostname (e.g., `mail.smtp2go.com`)
+- `SMTP_PORT` - SMTP server port (e.g., `2525`)
+- `SMTP_USER` - SMTP username
+- `SMTP_PASS` - SMTP password
+- `SMTP_FROM` - From address for emails (e.g., `noreply@yourdomain.com`)
 
-## Accessibility considerations
+**Node Environment:**
+- `NODE_ENV` - Set to `production` for production builds (affects optimizations and error handling)
 
-- Large tap targets and readable contrast
-- Keyboard-only support where kiosks may use a scanner as keyboard input
-- Clear error messages that explain what to do next
+## What can be customized
+
+The admin portal provides limited customization options:
+
+- **Authentication**: Configured via Stack Auth environment variables
+- **Backend connection**: Set via `NEXT_PUBLIC_API_BASE_URL`
+- **Email delivery**: Configured via SMTP settings (if contact form is enabled)
+
+The portal does **not** provide UI controls for:
+- Kiosk field configuration (name, location, etc.)
+- Data retention policies
+- Device provisioning
+- Entry form fields
+
+These are managed by the backend API and kiosk application.
+
+## Operational guidance
+
+- Keep the backend API base URL stable across environments
+- Validate that Stack Auth configuration matches your environment (dev/stage/prod)
+- Use least-privilege access for admin accounts, since the portal can export data containing PII
+- Store `STACK_SECRET_SERVER_KEY` securely—never commit it to version control or expose it to the browser
+- Use HTTPS in production for all API connections

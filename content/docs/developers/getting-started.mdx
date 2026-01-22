@@ -1,0 +1,206 @@
+---
+title: "Getting started"
+audience: "developers"
+summary: "Local development setup guide for the admin portal, backend API, and kiosk client."
+url_prefix: "/docs/developers"
+nav_order: 2
+icon: "rocket"
+---
+
+This guide helps you set up a local development environment for the Guestbook platform.
+
+## Prerequisites
+
+- **Node.js**: v18 or higher
+- **PostgreSQL**: 12+ (for backend API)
+- **Rust**: Latest stable (for kiosk client)
+- **Git**: For cloning repositories
+
+## Quick Start: Admin Portal
+
+### 1. Clone and Install
+
+```bash
+git clone <admin-portal-repo-url>
+cd guestbook-admin-portal
+npm install
+```
+
+### 2. Configure Environment
+
+Create `.env.local`:
+
+```env
+NEXT_PUBLIC_STACK_PROJECT_ID=your-stack-project-id
+NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY=your-publishable-key
+STACK_SECRET_SERVER_KEY=your-secret-server-key
+NEXT_PUBLIC_STACK_API_URL=https://api.stack-auth.com
+NEXT_PUBLIC_API_BASE_URL=http://localhost:3001
+```
+
+### 3. Run Development Server
+
+```bash
+npm run dev
+```
+
+Access at `http://localhost:3000`
+
+## Quick Start: Backend API
+
+### 1. Clone and Install
+
+```bash
+git clone <backend-repo-url>
+cd guestbook-express
+npm install
+```
+
+### 2. Set Up PostgreSQL
+
+```bash
+# Create database
+createdb guestbook
+
+# Or using psql
+psql -U postgres -c "CREATE DATABASE guestbook;"
+```
+
+### 3. Configure Environment
+
+Create `.env`:
+
+```env
+PORT=3001
+DB_CONNECTION_STRING=postgres://postgres:password@localhost:5432/guestbook
+STACK_ADMIN_TEAM_ID=your-stack-admin-team-id
+STACK_AUTH_PROJECT_ID=your-stack-project-id
+STACK_AUTH_SECRET_SERVER_KEY=your-stack-secret-key
+STACK_AUTH_BASE_URL=https://api.stack-auth.com
+```
+
+### 4. Initialize Database
+
+```bash
+npm run db:migrate
+```
+
+### 5. Run Development Server
+
+```bash
+npm run dev
+```
+
+API available at `http://localhost:3001`
+
+## Quick Start: Kiosk Client
+
+### 1. Clone and Install
+
+```bash
+git clone <kiosk-client-repo-url>
+cd guestbook-client
+npm install
+```
+
+### 2. Install Rust Dependencies
+
+**Linux:**
+```bash
+./appliance-setup/install-tauri-deps.sh
+```
+
+**macOS:**
+```bash
+xcode-select --install
+```
+
+**Windows:**
+Install Visual Studio Build Tools
+
+### 3. Configure (First Run)
+
+The kiosk client will prompt for configuration on first launch:
+- Server URL: `http://localhost:3001` (for local backend)
+- Device Token: Get from backend after device registration
+- Device Name and Location: Optional identifiers
+
+### 4. Run Development Mode
+
+```bash
+npm run tauri dev
+```
+
+## Full Stack Development
+
+### Running All Components
+
+**Terminal 1 - Backend API:**
+```bash
+cd guestbook-express
+npm run dev
+```
+
+**Terminal 2 - Admin Portal:**
+```bash
+cd guestbook-admin-portal
+npm run dev
+```
+
+**Terminal 3 - Kiosk Client:**
+```bash
+cd guestbook-client
+npm run tauri dev
+```
+
+### Testing the Flow
+
+1. **Register a Device**: Use the kiosk client's first-run setup to register with the backend
+2. **Submit an Entry**: Scan/swipe a test card at the kiosk
+3. **View in Portal**: Check the admin portal dashboard to see the entry
+
+## Development Tools
+
+### Backend API
+
+- **API Documentation**: See `docs/API.md`
+- **Tests**: `npm test`
+- **Database Migrations**: `npm run db:migrate`
+
+### Admin Portal
+
+- **Linting**: `npm run lint`
+- **Tests**: `npm test`
+- **Type Checking**: TypeScript compiler runs automatically
+
+### Kiosk Client
+
+- **Debug Console**: Available in development builds (F12)
+- **Logs**: Check platform-specific log locations
+- **Device Status**: Use browser console commands (see kiosk client README)
+
+## Common Development Issues
+
+### Backend API Won't Start
+
+- **Database connection**: Verify PostgreSQL is running and connection string is correct
+- **Missing env vars**: Check all required Stack Auth variables are set
+- **Port in use**: Change `PORT` in `.env` if 3001 is occupied
+
+### Admin Portal Can't Connect to Backend
+
+- **CORS**: Ensure backend CORS allows `http://localhost:3000`
+- **API URL**: Verify `NEXT_PUBLIC_API_BASE_URL` is correct
+- **Backend running**: Confirm backend API is running on the expected port
+
+### Kiosk Client Issues
+
+- **Rust not found**: Install Rust toolchain (`rustup`)
+- **Tauri build fails**: Check platform-specific dependencies are installed
+- **Device registration fails**: Verify backend API is accessible and device registration endpoint works
+
+## Next Steps
+
+- See [Architecture Overview](/docs/developers/architecture-overview) for system design
+- Review [API Reference](/docs/developers/api-reference) for endpoint details
+- Check [Configuration](/docs/developers/configuration-as-code) for environment setup

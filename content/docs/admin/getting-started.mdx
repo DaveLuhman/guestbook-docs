@@ -1,0 +1,146 @@
+---
+title: "Getting started"
+audience: "administrators"
+summary: "First-time deployment checklist and initial setup steps for the admin portal."
+url_prefix: "/docs/admin"
+nav_order: 2
+icon: "rocket"
+---
+
+This guide walks you through deploying the admin portal for the first time.
+
+## Prerequisites
+
+Before starting, ensure you have:
+
+- **Backend API**: The backend API (`guestbook-express`) must be deployed and accessible
+- **Stack Auth Account**: A Stack Auth project configured with:
+  - Project ID
+  - Publishable client key
+  - Secret server key
+  - API URL
+- **Node.js**: Version 18 or higher
+- **Network Access**: Ability to reach the backend API from your deployment environment
+
+## Deployment Checklist
+
+### 1. Clone and Install
+
+```bash
+git clone <admin-portal-repo-url>
+cd guestbook-admin-portal
+npm install
+```
+
+### 2. Configure Environment Variables
+
+Create a `.env.local` file (for local development) or configure environment variables in your deployment platform:
+
+**Required:**
+```env
+NEXT_PUBLIC_STACK_PROJECT_ID=your-stack-project-id
+NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY=your-publishable-key
+STACK_SECRET_SERVER_KEY=your-secret-server-key
+NEXT_PUBLIC_STACK_API_URL=https://api.stack-auth.com
+NEXT_PUBLIC_API_BASE_URL=https://api.guestbook.software
+```
+
+**Optional (for contact form):**
+```env
+CONTACT_EMAIL_TARGET=admin@yourdomain.com
+SMTP_HOST=mail.smtp2go.com
+SMTP_PORT=2525
+SMTP_USER=your-smtp-username
+SMTP_PASS=your-smtp-password
+SMTP_FROM=noreply@yourdomain.com
+```
+
+### 3. Verify Backend Connectivity
+
+Test that the backend API is reachable:
+
+```bash
+curl https://api.guestbook.software/api/health
+```
+
+Or test from your deployment environment to ensure network access.
+
+### 4. Build and Deploy
+
+**Local Development:**
+```bash
+npm run dev
+```
+Access at `http://localhost:3000`
+
+**Production Build:**
+```bash
+npm run build
+npm start
+```
+
+**Docker Deployment:**
+```bash
+docker build -t guestbook-admin-portal .
+docker run -p 3000:3000 --env-file .env guestbook-admin-portal
+```
+
+### 5. Initial Access
+
+1. Navigate to your deployed admin portal URL
+2. Sign in using Stack Auth (you'll need an account in your Stack Auth project)
+3. Verify you can see the dashboard
+
+### 6. Verify Functionality
+
+- **Dashboard**: Should show recent entries and device status
+- **Devices**: Should list devices registered with the backend
+- **Entries**: Should display entry data from the backend
+- **Organizations**: Should show organizations (if configured)
+
+## Post-Deployment
+
+### Create Initial Organization
+
+1. Navigate to Organizations page
+2. Create your first organization
+3. Assign devices to the organization (if applicable)
+
+### Invite Additional Admins
+
+1. Go to Users page
+2. Create additional admin users (requires superadmin privileges)
+3. Invite users to organizations as needed
+
+### Configure Email (Optional)
+
+If you want the contact form to work:
+1. Set up SMTP credentials
+2. Configure environment variables
+3. Test the contact form
+
+## Troubleshooting
+
+### Can't Sign In
+
+- Verify Stack Auth configuration values are correct
+- Check that your Stack Auth project allows your portal origin
+- Ensure `NEXT_PUBLIC_STACK_API_URL` is correct
+
+### Empty Dashboard
+
+- Verify `NEXT_PUBLIC_API_BASE_URL` points to the correct backend
+- Check backend API is running and accessible
+- Verify backend has data (entries, devices)
+
+### API Errors (401/403)
+
+- Check backend API authentication is working
+- Verify device tokens are valid (for kiosk submissions)
+- Ensure Stack Auth tokens are being passed correctly
+
+## Next Steps
+
+- Review [Device Management](/docs/admin/device-management) for managing kiosks
+- See [Configuration](/docs/admin/configuration-customization) for customization options
+- Check [Troubleshooting](/docs/admin/troubleshooting) for common issues

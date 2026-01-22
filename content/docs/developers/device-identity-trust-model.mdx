@@ -3,33 +3,56 @@ title: "Device identity and trust model"
 audience: "developers"
 summary: "Concepts for provisioning, binding, rotation, and revocation of kiosk identities in a physically exposed environment."
 url_prefix: "/docs/developers"
-nav_order: 4
+nav_order: 5
 icon: "id-card"
 ---
 
-This page lays out the technical contract, assumptions, and the failure modes you should plan for.
+This repository does not implement kiosk identity provisioning. Device identity is enforced by the backend API and the kiosk runtime.
 
-## Goals
+## What the admin portal does
 
-- A kiosk can prove it is an approved device
-- A kiosk can be bound to an org/location context
-- Access can be revoked if a device is compromised or retired
-- Rotation is possible without reimaging everything
+- Displays device identifiers provided by the backend
+- Shows device status based on backend `last_sync` data
+- Allows admins to retire devices (if the backend supports it)
+- Displays device-to-organization assignments
 
-## Provisioning flow (conceptual)
+## Where identity is handled
 
-1. Create device identity (unique identifier + secret/token)
-2. Bind identity to org/location context
-3. Kiosk fetches config using its identity
-4. Kiosk submits entries as that identity
+Device identity, provisioning, rotation, and revocation are implemented in:
 
-## Rotation and revocation
+- **Backend API** (`guestbook-express`): Issues and validates device tokens, manages device registration
+- **Kiosk Client** (`guestbook-client`): Stores device tokens, presents tokens for authentication
 
-- Rotation: replace credentials without replacing the device
-- Revocation: invalidate a device identity and force re-provisioning
+## Device identity model
 
-## Threat model assumptions
+### Device registration
 
-- Physical access is plausible
-- Network is not always reliable
-- Kiosk UX must remain simple even when identity fails
+1. Kiosk client generates a 6-character device ID (e.g., `ABC123`)
+2. Kiosk client generates or receives a device token
+3. Kiosk client registers with backend via `POST /api/v1/devices/register`
+4. Backend stores device ID, token, and initial device version (name, location)
+
+### Device authentication
+
+- Kiosks authenticate using device tokens (not user credentials)
+- Device tokens are included in requests to backend API
+- Backend validates tokens and associates requests with device IDs
+
+### Device versioning
+
+The backend uses a versioned device model:
+- Device attributes (name, location) are stored in `device_versions` table
+- Each device can have multiple versions over time
+- Entries are linked to specific device versions for historical accuracy
+- When device name/location changes, a new version is created
+
+### Device lifecycle
+
+- **Registration**: Initial device setup and backend registration
+- **Active**: Device is online and submitting entries
+- **Retired**: Device is marked inactive but data is preserved
+- **Deleted**: Device and associated data are removed (requires appropriate permissions)
+
+For implementation details, refer to:
+- Backend API repository for device registration and authentication logic
+- Kiosk client repository for device token storage and management

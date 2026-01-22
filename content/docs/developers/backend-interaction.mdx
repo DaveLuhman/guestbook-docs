@@ -3,28 +3,34 @@ title: "Backend interaction model"
 audience: "developers"
 summary: "How the frontend communicates with backend services: error handling expectations, retries, and contract stability."
 url_prefix: "/docs/developers"
-nav_order: 3
+nav_order: 4
 icon: "server"
 ---
 
-This page lays out the technical contract, assumptions, and the failure modes you should plan for.
+This page describes how the admin portal talks to the backend API.
 
 ## Communication patterns
 
-Keep the kiosk frontend predictable:
-- Prefer simple request/response calls for core actions (config fetch, entry submit)
-- Treat network failures as normal, not exceptional
-- Provide user-visible feedback that doesn’t leak internal details
+The portal uses a simple request/response model via `lib/api.ts`:
 
-## Error taxonomy (conceptual)
+- `fetch` requests are made from the browser
+- Authorization uses a Stack Auth access token in the `Authorization: Bearer ...` header
+- The client expects JSON responses
 
-- **Validation errors**: user can fix input (highlight fields, explain next steps)
-- **Auth/identity errors**: device mis-provisioned or revoked (admin action required)
-- **Network errors**: retryable with backoff (give users a clear try-again path)
-- **Server errors**: log and surface a generic failure message
+## Error handling
+
+The API client normalizes common HTTP errors:
+
+- **401 Unauthorized**: clears cached token and prompts a new auth flow
+- **403 Forbidden**: indicates insufficient permissions
+- **404 Not Found**: endpoint or resource missing
+- **409 Conflict**: indicates a conflicting state (e.g., resource already exists)
+
+The UI surfaces these errors in tables and modals without exposing sensitive details.
 
 ## Contract stability
 
 If you version APIs:
-- Keep backward compatibility for kiosk devices where possible
+
 - Prefer additive changes over breaking payload reshapes
+- Keep response envelopes consistent to reduce client-side branching

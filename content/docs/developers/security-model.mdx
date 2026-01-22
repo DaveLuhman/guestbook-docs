@@ -3,24 +3,23 @@ title: "Security model"
 audience: "developers"
 summary: "A practical security posture for a kiosk-facing system handling potentially sensitive user data."
 url_prefix: "/docs/developers"
-nav_order: 8
+nav_order: 9
 icon: "shield"
 ---
 
-This page lays out the technical contract, assumptions, and the failure modes you should plan for.
+This page describes the security posture for the admin portal.
 
 ## Baseline assumptions
 
-- Kiosks are exposed to the public
-- Users may attempt accidental or intentional misuse
+- The portal runs in a browser and relies on backend APIs
 - PII may be present in entries and exports
+- Admin access must be restricted and audited
 
 ## High-level controls
 
-- Strong authentication for admin surfaces
-- Least privilege for data access
-- Rate limiting / abuse controls where appropriate
-- Secure transport (TLS) for network calls
+- Stack Auth handles authentication
+- Backend enforces authorization (Owner/Manager/Viewer, Superadmin)
+- Secure transport (TLS) for all network calls
 
 ## Input security
 

@@ -3,25 +3,23 @@ title: "Security considerations"
 audience: "administrators"
 summary: "Operate Guestbook safely: protect devices, reduce exposure, and handle data as if it matters (because it does)."
 url_prefix: "/docs/admin"
-nav_order: 8
+nav_order: 10
 icon: "shield"
 ---
 
-This page focuses on practical operational details and the decisions that affect day-to-day support.
+This page focuses on operating the **admin portal** safely.
 
 ## Network exposure (high-level)
 
-- Keep admin surfaces behind authenticated access
-- Avoid exposing kiosk endpoints publicly unless required
-- Prefer segmented networks for kiosks where possible
+- Keep the admin portal behind authenticated access (Stack Auth)
+- Serve the portal over HTTPS
+- Limit backend API exposure to the portal’s origin where possible
 
-## Physical security
+## Secrets and configuration
 
-Kiosks are public-facing by design. Plan for:
-- Curious hands
-- Accidental unplugging
-- Power cycling
-- Peripheral tampering
+- Treat `STACK_SECRET_SERVER_KEY` and SMTP credentials as secrets
+- Store secrets in your hosting platform’s secret manager
+- Never expose server-side keys to the browser
 
 ## Data handling
 

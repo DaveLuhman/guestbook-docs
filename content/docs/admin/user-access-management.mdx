@@ -3,19 +3,24 @@ title: "Admin users and access control"
 audience: "administrators"
 summary: "Set up admin access safely using least privilege and predictable roles, without blocking normal operations."
 url_prefix: "/docs/admin"
-nav_order: 5
+nav_order: 7
 icon: "users"
 ---
 
-This page focuses on practical operational details and the decisions that affect day-to-day support.
+This page describes how access is represented in the admin portal.
 
-## Roles (conceptual)
+## Roles in this portal
 
-Guestbook typically needs a small set of roles. Keep it boring.
+The portal displays roles as provided by the backend:
 
-- **Admin / Owner**: can manage devices, configuration, and data access
-- **Manager**: can view and export data, may manage limited configuration
-- **Viewer**: read-only access for reporting/oversight
+- **Superadmin**: based on Stack Auth team membership (e.g., the `superadmins` team)
+- **Owner / Manager / Viewer**: organization roles coming from the backend API
+
+## What you can do today
+
+- Superadmins can create users from the Users page
+- All admins can view users and organization memberships
+- Role changes and advanced user actions are not yet implemented in the UI
 
 ## Least privilege, in plain language
 

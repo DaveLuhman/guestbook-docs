@@ -1,11 +1,383 @@
 ---
 title: "API reference"
 audience: "developers"
-summary: "Interactive OpenAPI reference generated from the published `swagger.yaml` spec."
+summary: "Backend API endpoints that the admin portal uses, with request/response examples and authentication requirements."
 url_prefix: "/docs/developers"
 nav_order: 11
 icon: "book"
 ---
 
-<OpenApiReference specUrl="/swagger.yaml" />
+This page documents the backend API endpoints that the admin portal uses. The backend API is implemented in the `guestbook-express` repository. This repository does not include an OpenAPI spec.
+
+## Base URL
+
+All endpoints are rooted at `NEXT_PUBLIC_API_BASE_URL` (default: `http://localhost:3001`).
+
+## Authentication
+
+Most endpoints require authentication via Stack Auth. Include the access token in the `Authorization` header:
+
+```
+Authorization: Bearer <access_token>
+```
+
+Device registration endpoints use device token authentication instead of user authentication.
+
+## Response format
+
+The API uses a standard response envelope:
+
+**Success:**
+```json
+{
+  "success": true,
+  "data": { ... }
+}
+```
+
+**Error:**
+```json
+{
+  "success": false,
+  "error": "Error message",
+  "details": "Additional error details (optional)"
+}
+```
+
+Some endpoints may return raw JSON payloads, but consistent envelopes are recommended.
+
+## Endpoints
+
+### Dashboard
+
+#### `GET /api/v1/dashboard`
+
+Returns dashboard statistics including recent entries and devices.
+
+**Authentication:** Required (user)
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "totalEntries": 1234,
+    "totalDevices": 5,
+    "recentEntries": [ ... ],
+    "recentDevices": [ ... ]
+  }
+}
+```
+
+### Entries
+
+#### `GET /api/v1/entries`
+
+List entries with pagination and filtering.
+
+**Authentication:** Required (user)
+
+**Query parameters:**
+- `limit` (optional, default: 50) - Number of entries per page
+- `offset` (optional, default: 0) - Pagination offset
+- `search` (optional) - Search term for filtering
+- `date` (optional) - Filter by date (YYYY-MM-DD)
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "entry-id",
+      "guest": "guest-id",
+      "device": "device-id",
+      "timestamp": "2024-01-01T12:00:00Z",
+      "submitted_at": "2024-01-01T12:00:01Z",
+      "guest_name": "John Doe",
+      "guest_onecard": "1234567",
+      "device_name": "Front Desk",
+      "device_location": "Lobby"
+    }
+  ]
+}
+```
+
+#### `GET /api/v1/entries/recent`
+
+Returns recent entries and recently seen devices.
+
+**Authentication:** Required (user)
+
+**Query parameters:**
+- `entriesCount` (optional, default: 10) - Number of recent entries
+- `devicesCount` (optional, default: 5) - Number of recent devices
+
+#### `GET /api/v1/entries/guest/:onecard`
+
+Get entries for a specific guest by onecard ID.
+
+**Authentication:** Required (user)
+
+#### `GET /api/v1/entries/device/:deviceId`
+
+Get entries for a specific device.
+
+**Authentication:** Required (user)
+
+#### `GET /api/v1/entries/:id`
+
+Get a specific entry by ID.
+
+**Authentication:** Required (user)
+
+#### `PUT /api/v1/entries/:id`
+
+Update an entry.
+
+**Authentication:** Required (user, appropriate permissions)
+
+#### `DELETE /api/v1/entries/:id`
+
+Delete an entry.
+
+**Authentication:** Required (user, appropriate permissions)
+
+### Devices
+
+#### `GET /api/v1/devices`
+
+List devices (access-controlled based on user's organization memberships).
+
+**Authentication:** Required (user)
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "ABC123",
+      "name": "Front Desk Kiosk",
+      "location": "Lobby",
+      "last_seen": "2024-01-01T12:00:00Z",
+      "last_sync": "2024-01-01T12:00:00Z",
+      "is_retired": false,
+      "status": "Online"
+    }
+  ]
+}
+```
+
+#### `GET /api/v1/devices/:id`
+
+Get a specific device by ID.
+
+**Authentication:** Required (user)
+
+#### `PATCH /api/v1/devices/:id`
+
+Update device name or location.
+
+**Authentication:** Required (user, appropriate permissions)
+
+**Request body:**
+```json
+{
+  "name": "New Name",
+  "location": "New Location"
+}
+```
+
+#### `POST /api/v1/devices/:id/retire`
+
+Mark a device as retired (inactive).
+
+**Authentication:** Required (user, appropriate permissions)
+
+#### `DELETE /api/v1/devices/:id`
+
+Delete a device.
+
+**Authentication:** Required (user, appropriate permissions)
+
+#### `POST /api/v1/devices/register`
+
+Register a new device. This endpoint does not require user authentication; it uses device token authentication.
+
+**Authentication:** Device token (not user auth)
+
+**Request body:**
+```json
+{
+  "id": "ABC123",
+  "name": "Device Name",
+  "location": "Device Location",
+  "token": "device-token"
+}
+```
+
+### Guests
+
+#### `GET /api/v1/guests`
+
+List guests with pagination and search.
+
+**Authentication:** Required (user)
+
+**Query parameters:**
+- `limit` (optional, default: 50)
+- `offset` (optional, default: 0)
+- `search` (optional) - Search by name or onecard
+
+#### `GET /api/v1/guests/:id`
+
+Get a specific guest by ID.
+
+**Authentication:** Required (user)
+
+#### `GET /api/v1/guests/:id/entries`
+
+Get all entries for a specific guest.
+
+**Authentication:** Required (user)
+
+#### `PUT /api/v1/guests/:id`
+
+Update a guest.
+
+**Authentication:** Required (user, appropriate permissions)
+
+#### `DELETE /api/v1/guests/:id`
+
+Delete a guest.
+
+**Authentication:** Required (user, appropriate permissions)
+
+### Organizations
+
+#### `GET /api/v1/orgs`
+
+List organizations the user has access to.
+
+**Authentication:** Required (user)
+
+#### `POST /api/v1/orgs`
+
+Create a new organization.
+
+**Authentication:** Required (user)
+
+**Request body:**
+```json
+{
+  "name": "Organization Name"
+}
+```
+
+#### `GET /api/v1/orgs/:id`
+
+Get a specific organization.
+
+**Authentication:** Required (user, must be member)
+
+#### `PATCH /api/v1/orgs/:id`
+
+Update an organization.
+
+**Authentication:** Required (user, Owner or Manager role)
+
+#### `POST /api/v1/orgs/:orgId/invite`
+
+Invite a user to an organization.
+
+**Authentication:** Required (user, Owner or Manager role)
+
+#### `DELETE /api/v1/orgs/:orgId/members/:userId`
+
+Remove a member from an organization.
+
+**Authentication:** Required (user, Owner or Manager role)
+
+#### `POST /api/v1/orgs/:orgId/devices/:deviceId/attach`
+
+Attach a device to an organization.
+
+**Authentication:** Required (user, Owner or Manager role)
+
+#### `POST /api/v1/orgs/:orgId/devices/:deviceId/detach`
+
+Detach a device from an organization.
+
+**Authentication:** Required (user, Owner or Manager role)
+
+### Users
+
+#### `GET /api/v1/users/me`
+
+Get the current authenticated user's information including organization memberships and roles.
+
+**Authentication:** Required (user)
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "user-id",
+    "email": "user@example.com",
+    "name": "User Name",
+    "organizations": [
+      {
+        "id": "org-id",
+        "name": "Organization Name",
+        "role": "Manager"
+      }
+    ],
+    "is_org_manager": true,
+    "is_superadmin": false
+  }
+}
+```
+
+#### `GET /api/v1/users`
+
+List users. Superadmins see all users; organization managers see users in their organizations.
+
+**Authentication:** Required (user, Superadmin or Org Manager)
+
+#### `POST /api/v1/users`
+
+Create a new user via Stack Auth.
+
+**Authentication:** Required (user, Superadmin only)
+
+**Request body:**
+```json
+{
+  "email": "user@example.com",
+  "display_name": "User Name"
+}
+```
+
+## Error responses
+
+The API returns standard HTTP status codes:
+
+- `200 OK` - Success
+- `400 Bad Request` - Invalid request
+- `401 Unauthorized` - Authentication required or invalid
+- `403 Forbidden` - Insufficient permissions
+- `404 Not Found` - Resource not found
+- `409 Conflict` - Conflicting state (e.g., resource already exists)
+- `500 Internal Server Error` - Server error
+
+Error responses include details in the response envelope:
+```json
+{
+  "success": false,
+  "error": "Unauthorized",
+  "details": "Invalid or expired token"
+}
+```
 

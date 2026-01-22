@@ -1,31 +1,89 @@
 ---
 title: "Configuration as code"
 audience: "developers"
-summary: "Environment and runtime configuration patterns that keep kiosk behavior stable across dev/stage/prod."
+summary: "Environment and runtime configuration patterns that keep behavior stable across dev/stage/prod."
 url_prefix: "/docs/developers"
-nav_order: 6
+nav_order: 7
 icon: "code"
 ---
 
-This page lays out the technical contract, assumptions, and the failure modes you should plan for.
+This page describes how the Guestbook components are configured. Each component has its own configuration approach.
 
 ## Configuration goals
 
 - Safe defaults
-- Explicit overrides
-- Environment separation (dev/stage/prod)
-- Minimal per-device drift
+- Explicit overrides per environment
+- Consistent behavior across dev/stage/prod
+- Secrets stored securely (never in code or version control)
 
-## Typical configuration sources
+## Admin portal configuration
 
-- Environment variables (build/runtime)
-- Remote configuration fetched at startup
-- Local device configuration for binding and identity (where appropriate)
+All runtime configuration is via environment variables. See `env.example` in the admin portal repository for a template.
 
-## Precedence (recommended)
+### Required variables
 
-1. Device-local identity/binding context
-2. Remote org configuration
-3. Environment defaults
+- `NEXT_PUBLIC_STACK_PROJECT_ID` - Stack Auth project identifier
+- `NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY` - Stack Auth publishable key
+- `STACK_SECRET_SERVER_KEY` - Stack Auth secret key (server-side only)
+- `NEXT_PUBLIC_STACK_API_URL` - Stack Auth API URL (default: `https://api.stack-auth.com`)
+- `NEXT_PUBLIC_API_BASE_URL` - Backend API base URL (default: `http://localhost:3001`)
 
-Keep it boring. Boring is maintainable.
+### Optional variables
+
+- `CONTACT_EMAIL_TARGET` - Email for contact form submissions
+- `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` - SMTP configuration
+- `NODE_ENV` - Environment mode (`development` | `production`)
+
+## Backend API configuration
+
+The backend API uses environment variables for all configuration. See the backend repository's `src/config/index.js` for the complete list.
+
+### Required variables
+
+- `STACK_ADMIN_TEAM_ID` - Stack Auth admin team ID for superadmin checks
+- `STACK_AUTH_PROJECT_ID` - Stack Auth project identifier
+- `STACK_AUTH_SECRET_SERVER_KEY` - Stack Auth secret server key
+- Database connection (one of):
+  - `DB_CONNECTION_STRING` - Full PostgreSQL connection string, OR
+  - Individual vars: `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_SSL`
+
+### Optional variables
+
+- `PORT` - Server port (default: `3001`)
+- `NODE_ENV` - Environment mode (default: `development`)
+- `STACK_AUTH_BASE_URL` - Stack Auth API URL (default: `https://api.stack-auth.com`)
+- `USER_CACHE_TTL` - User cache TTL in ms (default: `300000` = 5 minutes)
+- `LOG_LEVEL` - Log level (default: `info`)
+- `ENABLE_MORGAN` - Enable HTTP request logging (default: enabled)
+
+## Kiosk client configuration
+
+The kiosk client uses configuration files stored in platform-specific directories, not environment variables.
+
+### Configuration file locations
+
+- **Windows**: `%APPDATA%/adosoftware/guestbook/`
+- **macOS**: `~/Library/Application Support/adosoftware/guestbook/`
+- **Linux**: `~/.config/guestbook-client/gb-config.json`
+
+### Configuration structure
+
+- `server_url` (optional) - Backend API URL
+- `server_token` (optional) - Device authentication token
+- `device_id` (auto-generated) - 6-character device identifier
+- `device_location` (optional) - Physical location identifier
+- `device_friendly_name` (optional) - Friendly name for the kiosk
+- `first_run` (boolean) - Whether first-run setup has been completed
+- `camera_preview_enabled` (boolean, default: false) - Enable camera preview UI
+
+Configuration is managed through the first-run setup window or by editing the config file directly.
+
+## Environment separation
+
+Use distinct environment variable sets per environment and avoid sharing secrets between dev/stage/prod:
+
+- **Development**: Local `.env` files (never commit these)
+- **Staging**: Platform secret management (e.g., Vercel env vars, Docker secrets)
+- **Production**: Secure secret management with rotation policies
+
+The admin portal does not manage per-device configuration or kiosk identity—those are handled by the backend API and kiosk client.

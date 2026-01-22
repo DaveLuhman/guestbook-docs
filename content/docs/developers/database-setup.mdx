@@ -1,0 +1,222 @@
+---
+title: "Database setup and migration"
+audience: "developers"
+summary: "PostgreSQL database setup, schema initialization, and migration procedures for the backend API."
+url_prefix: "/docs/developers"
+nav_order: 12
+icon: "database"
+---
+
+This page covers database setup and migration for the backend API (`guestbook-express`).
+
+## Prerequisites
+
+- PostgreSQL 12+ installed and running
+- Database user with CREATE DATABASE privileges
+- Network access to the PostgreSQL server (if remote)
+
+## Initial Database Setup
+
+### 1. Create the Database
+
+```bash
+# Connect to PostgreSQL as a superuser
+psql -U postgres
+
+# Create the database
+CREATE DATABASE guestbook;
+
+# Optionally create a dedicated user
+CREATE USER guestbook_user WITH PASSWORD 'your_secure_password';
+GRANT ALL PRIVILEGES ON DATABASE guestbook TO guestbook_user;
+
+# Exit psql
+\q
+```
+
+### 2. Configure Connection
+
+Set up your database connection in the `.env` file using one of these methods:
+
+**Option 1: Connection String (Recommended)**
+```env
+DB_CONNECTION_STRING=postgres://guestbook_user:your_secure_password@localhost:5432/guestbook
+```
+
+**Option 2: Individual Parameters**
+```env
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=guestbook
+DB_USER=guestbook_user
+DB_PASSWORD=your_secure_password
+DB_SSL=false
+```
+
+For remote databases or production, set `DB_SSL=true` and ensure SSL certificates are configured.
+
+### 3. Run Initial Migration
+
+The backend API automatically initializes the database schema on first connection. The schema is defined in `src/db/db.js` and includes:
+
+- Core tables: `guest`, `device`, `device_versions`, `entry`, `heartbeat`
+- Organization tables: `organization`, `org_membership`, `device_org`
+- User cache: `stack_auth_user`
+- Views: `device_current`, `device_with_status`
+- Functions and triggers for data integrity
+
+To manually trigger schema initialization:
+
+```bash
+cd guestbook-express
+npm run db:migrate
+```
+
+The migration is **idempotent**—safe to run multiple times. It will:
+- Create tables if they don't exist
+- Add missing columns
+- Create or update functions and triggers
+- Not modify existing data
+
+## Database Schema Overview
+
+### Core Tables
+
+**`guest`**
+- Stores guest information (ID, name, onecard, last_seen timestamps)
+
+**`device`**
+- Stores device identity (ID, token, retirement status, last_seen/last_sync)
+
+**`device_versions`**
+- Versioned device attributes (name, location) with validity time ranges
+- Allows historical tracking of device changes
+
+**`entry`**
+- Guest check-in records linked to guests, devices, and device versions
+- Includes timestamps for visit time and submission time
+
+**`heartbeat`**
+- Device health check records
+
+### Organization Tables
+
+**`organization`**
+- Multi-tenant organization records
+
+**`org_membership`**
+- User-to-organization relationships with roles (Owner, Manager, Viewer)
+
+**`device_org`**
+- Device-to-organization assignments
+
+### Views
+
+**`device_current`**
+- Current device attributes (name, location) from the latest device version
+
+**`device_with_status`**
+- Device information with online/offline status based on `last_sync` timestamps
+
+## Migration Procedures
+
+### Running Migrations
+
+The backend includes a migration script that updates the database schema:
+
+```bash
+npm run db:migrate
+```
+
+This script:
+- Creates `device_versions` table if missing
+- Seeds device versions from legacy `device.name/location` if present
+- Adds `entry.device_version_id` and backfills based on timestamps
+- Adds new device columns (token, is_retired, last_seen, last_sync)
+- Reinstalls functions, triggers, and views to current definitions
+
+### Migration Safety
+
+- **Idempotent**: Safe to run multiple times
+- **Data-preserving**: Does not delete or modify existing data
+- **Backward-compatible**: Adds new columns/tables without breaking existing queries
+
+### Before Migrating
+
+**Always backup first:**
+
+```bash
+# Using connection string
+pg_dump "$DB_CONNECTION_STRING" > backup_$(date +%Y%m%d_%H%M%S).sql
+
+# Or using individual parameters
+pg_dump -h localhost -U guestbook_user -d guestbook > backup_$(date +%Y%m%d_%H%M%S).sql
+```
+
+## Production Considerations
+
+### Connection Pooling
+
+The backend uses Knex.js connection pooling. Default settings are suitable for most deployments. For high-traffic scenarios, adjust pool settings in `src/db/db.js`.
+
+### SSL/TLS
+
+For production databases, enable SSL:
+
+```env
+DB_SSL=true
+```
+
+Ensure PostgreSQL is configured with SSL certificates.
+
+### Backup Strategy
+
+- **Regular backups**: Use `pg_dump` or your hosting provider's backup tools
+- **Point-in-time recovery**: Consider enabling WAL archiving for PostgreSQL
+- **Test restores**: Regularly verify backups can be restored
+
+### Performance Monitoring
+
+Monitor:
+- Connection pool usage
+- Query performance (slow queries)
+- Database size and growth
+- Index usage
+
+Use PostgreSQL's built-in statistics (`pg_stat_*` views) or monitoring tools.
+
+## Troubleshooting
+
+### Connection Errors
+
+**"Connection refused"**
+- Verify PostgreSQL is running: `systemctl status postgresql` (Linux)
+- Check `DB_HOST` and `DB_PORT` are correct
+- Verify firewall allows connections
+
+**"Authentication failed"**
+- Verify `DB_USER` and `DB_PASSWORD` are correct
+- Check PostgreSQL `pg_hba.conf` allows connections from your host
+
+**"Database does not exist"**
+- Create the database: `CREATE DATABASE guestbook;`
+- Verify `DB_NAME` matches the actual database name
+
+### Migration Errors
+
+**"Cannot add primary key due to duplicate ids"**
+- The migration found duplicate device IDs
+- Manually deduplicate device records before running migration
+
+**"No device_version for device X at timestamp Y"**
+- Entry was created before device version existed
+- Migration should handle this, but if it fails, create a device version manually
+
+### Schema Issues
+
+If schema initialization fails:
+1. Check PostgreSQL logs for detailed error messages
+2. Verify database user has CREATE TABLE privileges
+3. Ensure required PostgreSQL extensions are available:
+   - `uuid-ossp` (for UUID generation)
+   - `btree_gist` (for exclusion constraints)

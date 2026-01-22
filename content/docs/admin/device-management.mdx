@@ -3,58 +3,29 @@ title: "Device and kiosk management"
 audience: "administrators"
 summary: "Provision, bind, reset, and maintain kiosks and their peripherals without turning support into a scavenger hunt."
 url_prefix: "/docs/admin"
-nav_order: 3
+nav_order: 5
 icon: "device"
 ---
 
-This page focuses on practical operational details and the decisions that affect day-to-day support.
+This page describes device management **as surfaced in the admin portal**. Device provisioning, kiosk imaging, and peripheral setup are handled by the kiosk application and backend services, not this repository.
 
-## What admins “own” for devices
+## What the admin portal supports
 
-- Initial provisioning (hardware + software)
-- Binding the kiosk to the correct organization/location
-- Ensuring peripherals work (scanner/camera/touchscreen)
-- Reset/reprovision workflows
+From the Devices page, admins can:
 
-## Provisioning checklist (practical)
+- View device inventory reported by the backend
+- See status and last-seen fields (based on backend sync)
+- Update a device’s name and location
+- Retire a device (mark it inactive)
 
-- Verify the device boots cleanly and is managed (policies applied)
-- Confirm Guestbook launches reliably (auto-start if required)
-- Confirm the kiosk can reach the backend
-- Confirm time is correct (NTP or managed time source)
-- Validate peripherals:
-  - Barcode scanner input
-  - Camera stream (if used)
-  - Touch input / keyboard input
+The portal does not perform kiosk resets, OS-level remediation, or peripheral diagnostics.
 
-## Binding a device
+## Device assignment and org context
 
-Binding should answer two questions:
-1. **Which organization** does this kiosk belong to?
-2. **Which location/context** should entries be tagged with?
+Organization ownership and device attachment are managed by the backend. When the backend supports it, the Organizations page can attach or detach devices from an org for reporting and access control. If your backend does not expose this, device assignment is read-only.
 
-After binding:
-- Validate the UI reflects the correct org/location
-- Submit a test entry and confirm it lands where expected
+## Operational tips
 
-## Reset vs reprovision
-
-### Reset
-Use when:
-- The kiosk UI is stuck
-- A session needs clearing
-- A peripheral state is bad and a restart fixes it
-
-Expect:
-- The kiosk returns to a known start screen
-- No policy/config should be lost
-
-### Reprovision
-Use when:
-- The device identity/binding is wrong
-- The install is corrupted or out of date
-- The OS environment drifted too far
-
-Expect:
-- Rebinding and validation steps are required afterward
-- You should treat it like a “new kiosk” again
+- Keep device IDs stable; they are treated as primary identifiers in the admin UI
+- If a device shows as offline, verify backend connectivity and last sync timestamps first
+- Use “retire” for devices that are decommissioned or lost to prevent stale data

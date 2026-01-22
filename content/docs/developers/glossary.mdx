@@ -1,0 +1,108 @@
+---
+title: "Glossary"
+audience: "developers"
+summary: "Definitions of key terms, concepts, and components used throughout Guestbook documentation."
+url_prefix: "/docs/developers"
+nav_order: 15
+icon: "book-open"
+---
+
+## Glossary
+
+### A
+
+**Admin Portal**  
+The Next.js web application (`guestbook-admin-portal`) that provides administrators with a UI to view entries, manage devices, export data, and configure organizations. Also referred to as the "admin UI" or "web portal."
+
+**API Backend**  
+The Express.js REST API (`guestbook-express`) that manages entries, devices, guests, organizations, and user authentication. Also referred to as the "backend API" or "backend service."
+
+### B
+
+**Barcode Scanner**  
+A hardware device (HID-compliant) that reads barcodes and sends the data as keyboard input to the kiosk client. Can also refer to camera-based scanning via the camera sidecar service.
+
+### C
+
+**Camera Sidecar**  
+A Python service that runs alongside the kiosk client to provide camera-based barcode scanning. Communicates with the kiosk client via HTTP on `http://127.0.0.1:7313`.
+
+**Check-in**  
+The process of a guest recording their visit at a kiosk, typically by scanning an ID card or barcode.
+
+### D
+
+**Device**  
+A kiosk hardware unit running the kiosk client. Each device has a unique 6-character ID and an authentication token.
+
+**Device ID**  
+A 6-character identifier (e.g., `ABC123`) that uniquely identifies a kiosk device in the system.
+
+**Device Token**  
+An authentication token used by kiosk devices to authenticate with the backend API. Stored securely in the kiosk client configuration.
+
+**Device Version**  
+A versioned record of device attributes (name, location) stored in the `device_versions` table. Allows historical tracking of device changes over time.
+
+### E
+
+**Entry**  
+A record of a guest check-in, including guest identifier, device used, timestamp, and optional metadata. Stored in the PostgreSQL database.
+
+### G
+
+**Guest**  
+A person who checks in at a kiosk. Guests are identified by a onecard (barcode value) and optionally a name.
+
+**Guestbook**  
+The overall platform consisting of the kiosk client, backend API, and admin portal.
+
+### H
+
+**Heartbeat**  
+A periodic health check sent by kiosk devices to the backend API to indicate the device is online and functioning. Updates the device's `last_sync` timestamp.
+
+**HID (Human Interface Device)**  
+A USB device standard that allows devices like barcode scanners and magnetic stripe readers to appear as keyboard input to the operating system.
+
+### K
+
+**Kiosk**  
+A dedicated hardware device (typically a Raspberry Pi, tablet, or workstation) running the kiosk client application in fullscreen mode for guest check-ins.
+
+**Kiosk Client**  
+The Tauri-based desktop application (`guestbook-client`) that runs on kiosk hardware to capture guest entries and submit them to the backend API.
+
+### O
+
+**Onecard**  
+A barcode value or identifier used to uniquely identify a guest. Typically scanned from an ID card.
+
+**Organization**  
+A tenant or organizational unit in the system. Devices and users can be associated with organizations for access control and data segregation.
+
+**Orphaned Device**  
+A device that has been deleted from the backend but still has local configuration. Indicated by a 403 Forbidden response when attempting to submit entries.
+
+### P
+
+**PostgreSQL**  
+The relational database used by the backend API to store entries, devices, guests, organizations, and user data.
+
+### S
+
+**Stack Auth**  
+The authentication service used by Guestbook for user authentication and authorization. Provides role-based access control and organization membership management.
+
+**Sidecar**  
+See "Camera Sidecar"
+
+### T
+
+**Tauri**  
+The framework used to build the kiosk client, combining a Rust backend with a web-based frontend (TypeScript/HTML).
+
+### V
+
+**Versioning (Device)**  
+The system of tracking device attribute changes over time using the `device_versions` table, allowing historical accuracy when querying entries.

@@ -3,41 +3,41 @@ title: "Admin troubleshooting"
 audience: "administrators"
 summary: "Symptom-first steps for diagnosing issues without immediately needing a developer on standby."
 url_prefix: "/docs/admin"
-nav_order: 9
+nav_order: 11
 icon: "life-buoy"
 ---
 
-This page focuses on practical operational details and the decisions that affect day-to-day support.
+This page covers troubleshooting for the **admin portal**.
 
 ## First triage questions
 
-- Is this one kiosk or all kiosks?
-- Did anything change recently (network, updates, policy)?
+- Is it one user or everyone?
+- Did anything change recently (deployment, env vars, backend)?
 - Is the failure consistent or intermittent?
 - Can you reproduce it?
 
 ## Common symptoms
 
-### Kiosk can’t reach the backend
-- Verify network path and DNS
-- Check whether other services are affected
-- Capture timestamps and locations
+### Can’t sign in
+- Confirm Stack Auth configuration values are present
+- Check that the Stack Auth project allows your portal origin
+- Verify the browser can reach the Stack Auth API URL
 
-### Scanner input stopped working
-- Confirm it’s still recognized by the OS
-- Test input in a basic text field
-- Swap hardware if you need to isolate the cause quickly
+### Data tables are empty or failing
+- Confirm `NEXT_PUBLIC_API_BASE_URL` points to the correct backend
+- Look for 401/403/404 errors in the browser console
+- Verify the backend API is reachable from the user’s network
 
-### UI freezes or won’t reset
-- Restart the kiosk app
-- Reboot the device if needed
-- If it recurs, capture steps to reproduce and escalate
+### Exports are empty
+- Ensure a date range is selected
+- Select at least one guest or device
+- Confirm the backend is returning entries for the chosen filters
 
 ## Escalation checklist
 
 When escalating to the dev/integrator team, include:
-- Kiosk identifier and location
+- Portal URL and environment (dev/stage/prod)
 - Date/time (with timezone)
-- What the user was doing
+- The backend API base URL
 - What you expected vs what happened
-- Any logs or screenshots available
+- Any screenshots or console errors available

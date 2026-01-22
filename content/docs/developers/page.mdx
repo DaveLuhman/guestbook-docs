@@ -7,27 +7,43 @@ nav_order: 1
 icon: "code"
 ---
 
-This page lays out the technical contract, assumptions, and the failure modes you should plan for.
+This section documents the **admin portal** codebase and its API contract. The Guestbook platform consists of three components:
+
+- **Admin Portal** (this repository): Next.js web application for administrators
+- **Backend API** (separate repository): Express.js REST API with PostgreSQL database
+- **Kiosk Client** (separate repository): Tauri-based desktop application for kiosk devices
+
+Kiosk runtime and backend services are maintained in separate repositories and are referenced here when they impact the portal's behavior.
 
 ## Who this section is for
 
-This section is for people building or integrating systems around Guestbook: API consumers, platform engineers, and developers extending deployments.
+This section is for people building or integrating systems around the admin portal: API consumers, platform engineers, and developers extending the portal UI.
 
-## What you’ll find here
+## What you'll find here
 
-- Architecture and trust boundaries
-- Backend interaction patterns
-- Device identity and provisioning concepts
-- Scanner/camera integration models
-- Configuration, logging, and observability basics
+- **[Getting Started](/docs/developers/getting-started)**: Local development setup for all components
+- **[Architecture Overview](/docs/developers/architecture-overview)**: System architecture and component interactions
+- **[Backend Interaction](/docs/developers/backend-interaction)**: How the admin portal communicates with the backend
+- **[Integration Patterns](/docs/developers/integration-patterns)**: Supported integration approaches
+- **[Device Identity & Trust Model](/docs/developers/device-identity-trust-model)**: Device provisioning and authentication
+- **[Barcode Scanner Integration](/docs/developers/barcode-scanner-integration)**: Scanner implementation details
+- **[Configuration as Code](/docs/developers/configuration-as-code)**: Environment and runtime configuration
+- **[Observability & Logging](/docs/developers/observability-logging)**: Logging and monitoring across components
+- **[Security Model](/docs/developers/security-model)**: Security posture and controls
+- **[Extending Guestbook](/docs/developers/extending-guestbook)**: Guidelines for customization
+- **[API Reference](/docs/developers/api-reference)**: Complete backend API endpoint documentation
+- **[Database Setup](/docs/developers/database-setup)**: PostgreSQL setup and migration procedures
+- **[Version Compatibility](/docs/developers/version-compatibility)**: Version compatibility matrix
+- **[Troubleshooting](/docs/developers/troubleshooting)**: Developer troubleshooting guide
+- **[Glossary](/docs/developers/glossary)**: Definitions of key terms and concepts
 
-## If you’re in the wrong place
+## If you're in the wrong place
 
-- If you’re operating kiosks day-to-day, head to **Administrators**.
-- If you’re using a kiosk to check in, start in **Users**.
+- If you're operating kiosks day-to-day, head to **Administrators**.
+- If you're using a kiosk to check in, start in **Users**.
 
-## This section’s contract
+## This section's contract
 
-We’ll be precise and avoid guessing. When details are implementation-specific, the docs should either:
+We'll be precise and avoid guessing. When details are implementation-specific, the docs should either:
 - link to the canonical source, or
 - clearly label placeholders until the implementation is finalized.
