@@ -8,9 +8,13 @@ import type { NavSection } from "./NavTree";
 
 type SidebarAccordionProps = {
   sections: NavSection[];
+  onNavigate?: () => void;
 };
 
-export default function SidebarAccordion({ sections }: SidebarAccordionProps) {
+export default function SidebarAccordion({
+  sections,
+  onNavigate
+}: SidebarAccordionProps) {
   const pathname = usePathname();
   const initialOpen = useMemo(() => {
     const active = sections.find((section) =>
@@ -65,6 +69,7 @@ export default function SidebarAccordion({ sections }: SidebarAccordionProps) {
                     <li key={item.href}>
                       <Link
                         href={item.href}
+                        onClick={onNavigate}
                         className={`block rounded-md px-2 py-1 text-sm ${
                           isActive
                             ? "bg-slate-100 font-medium text-slate-900 dark:bg-slate-800 dark:text-slate-50"

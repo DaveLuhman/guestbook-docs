@@ -1,6 +1,5 @@
 "use client";
 
-import { FaMoon, FaSun } from "react-icons/fa6";
 import { useEffect, useState } from "react";
 
 type ThemeMode = "light" | "dark";
@@ -53,11 +52,15 @@ export default function ThemeToggle() {
       aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
       className="rounded-full border border-slate-300 bg-white p-2 text-slate-700 shadow-sm transition-colors hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
     >
-      {theme === "dark" ? (
-        <FaSun className="h-4 w-4" aria-hidden />
-      ) : (
-        <FaMoon className="h-4 w-4" aria-hidden />
-      )}
+      <span className="inline-flex perspective-[1000px]" aria-hidden>
+        <i
+          className={`fa-solid fa-circle-half-stroke text-base transition-transform duration-500 ease-in-out transform-3d ${
+            theme === "dark"
+              ? "transform-[rotateY(180deg)]"
+              : "transform-[rotateY(0deg)]"
+          }`}
+        />
+      </span>
     </button>
   );
 }

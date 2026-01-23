@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import MobileDocsNav from "./MobileDocsNav";
 import SidebarAccordion from "./SidebarAccordion";
 import ThemeToggle from "./ThemeToggle";
 import type { NavSection } from "./NavTree";
@@ -13,14 +14,14 @@ export default function DocsShell({ nav, children }: DocsShellProps) {
   return (
     <div className="min-h-screen bg-transparent">
       <header className="border-b border-slate-200 bg-white/95 backdrop-blur-sm dark:border-slate-700 dark:bg-slate-900/95">
-        <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-6 px-6 py-4">
+        <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
           <Link
             href="/docs/users"
             className="text-lg font-semibold text-slate-900 dark:text-slate-50"
           >
             Guestbook Docs
           </Link>
-          <div className="flex w-full max-w-md items-center justify-end gap-3">
+          <div className="flex w-full items-center justify-end gap-3 sm:max-w-md">
             <input
               type="search"
               placeholder="Search documentation"
@@ -30,8 +31,9 @@ export default function DocsShell({ nav, children }: DocsShellProps) {
           </div>
         </div>
       </header>
-      <div className="mx-auto flex w-full max-w-6xl">
-        <aside className="w-72 shrink-0 border-r border-slate-200 bg-white/90 px-4 py-6 backdrop-blur-sm dark:border-slate-700 dark:bg-slate-900/90">
+      <div className="mx-auto flex w-full max-w-6xl flex-col lg:flex-row">
+        <MobileDocsNav sections={nav} />
+        <aside className="hidden w-72 shrink-0 border-r border-slate-200 bg-white/90 px-4 py-6 backdrop-blur-sm dark:border-slate-700 dark:bg-slate-900/90 lg:block">
           <SidebarAccordion sections={nav} />
         </aside>
         <main className="min-w-0 flex-1 px-4 py-6">{children}</main>

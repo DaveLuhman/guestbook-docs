@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 
 import PageHeader from "@/components/docs/PageHeader";
 import PageNavigation from "@/components/docs/PageNavigation";
-import OpenApiReference from "@/components/docs/OpenApiReference";
 import { getDocBySlug } from "@/lib/docs/nav";
 
 type DocContentProps = {
@@ -13,10 +12,6 @@ type DocContentProps = {
 function wrapSectionContainers(source: string): string {
   // Pages that embed complex client-only components (like the OpenAPI reference)
   // tend to be sensitive to MDX/JSX wrapping. Keep their source untouched.
-  if (source.includes("<OpenApiReference")) {
-    return source;
-  }
-
   const lines = source.split(/\r?\n/);
   const output: string[] = [];
   let inFence = false;
@@ -55,9 +50,7 @@ export default async function DocContent({ slug }: DocContentProps) {
 
   const { content } = await compileMDX({
     source: wrapSectionContainers(doc.content),
-    components: {
-      OpenApiReference
-    },
+    components: {},
     options: {
       parseFrontmatter: false
     }
